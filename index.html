@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Crime and Campus Blue Phones</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+    
+    <script src="crime_total.json"`></script>
+
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin:0;
+            padding:0;
+            background: white;
+            font-family: "Work Sans", sans-serif;
+        }
+        #side-panel {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 33%;
+            background: white;
+            border-right: 2px solid #1C9976;
+            overflow-y: scroll;
+        }
+        h1 {
+            padding: 8px 25px 8px 15px;
+            margin: 0;
+            background: #005DAA;
+            color: white;
+            font-weight: 400;
+            font-size: 1.5em;
+            text-align: right;
+        }
+        h2 {
+            margin: 0;
+            padding: 8px 25px 8px 15px;
+            color: #005DAA;
+            font-weight: 500;
+            font-size: 1.2em;
+            text-align: right;
+        }
+        #side-panel p {
+            margin: 8px 0 4px; 
+            padding: 0 25px 0 15px;
+            color: #3d3d3d;
+            text-align: right;
+            font-size: 1em; 
+        }
+        #side-panel p:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+        #side-panel img {
+            float: right;
+            margin: 0 0 15px 15px;
+        }
+        #map {
+            position:absolute;
+            top:0;
+            bottom:0;
+            right: 0;
+            width: 67%;
+        }
+        #ui-slider {
+            position: absolute;
+            bottom: 20px;
+            left: 36%;
+            width: 200px;
+            padding: 8px 15px 4px;
+            background: #1C9976;
+            border-radius: 3px;
+            color: white;
+        }
+        .slider {
+            width: 100%;
+        }
+        #info {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #1C9976;
+            border-radius: 3px; 
+            color: #005DAA;
+            position: absolute;
+            font-size: 1em;  
+            max-width: 200px;
+        }
+        #info p {
+                margin: 3px 0 4px;
+        }
+        #info span:last-child {
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+        
+        /* ADD YOUR ADDITIONAL STYLE RULES HERE */
+        
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Map Title</h1>
+        <h2>Map Subtitle</h2>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+
+    </footer>
+
+    <script>
+        
+   L.mapbox.accessToken = 'pk.eyJ1Ijoicmdkb25vaHVlIiwiYSI6Im5Ua3F4UzgifQ.PClcVzU5OUj17kuxqsY_Dg';
+        
+    var map = L.mapbox.map('map', 'mapbox.streets', {
+        center: [38.028319, -84.505000],
+        zoom: 14,
+        minZoom: 12,
+        maxZoom: 16,
+        maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
+    })
+    
+//    omnivore.csv('crime_log_total.csv').addTo(map);
+        
+    $.getJSON("crime_total.json", function(data) {
+        L.geoJson(data).addTo(map);
+        console.log(data);
+    });
+    
+    </script>
+    
+</body>
+
+</html>
