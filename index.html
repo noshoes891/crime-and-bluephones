@@ -6,16 +6,13 @@
     <title>Crime and Campus Blue Phones</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+   
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
-    
-    <script src="crime_total.json"`></script>
-
-
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
+     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
     <style>
@@ -106,8 +103,6 @@
             font-weight: 500;
         }
         
-        /* ADD YOUR ADDITIONAL STYLE RULES HERE */
-        
     </style>
 </head>
 
@@ -133,15 +128,74 @@
         minZoom: 12,
         maxZoom: 16,
         maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
-    })
-    
-//    omnivore.csv('crime_log_total.csv').addTo(map);
-        
-    $.getJSON("crime_total.json", function(data) {
-        L.geoJson(data).addTo(map);
-        console.log(data);
     });
+        
+    var customLayer = L.geoJson(null, {
+        
+        pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                 color: 'red',
+                 weight: 1,
+                 fillColor: 'red',
+                 fillOpacity: 1,
+                 radius: 4
+                });  
+        },
+        onEachFeature: function(feature, layer) {
+            
+            // hover/info retrieve code here
+            layer.on('mouseover', function(e) {
+                console.log(e.target.feature.properties)
+            })
+        }
+            
+    });
+
+    var crimeLayer = omnivore.csv('crimes2.csv', null, customLayer)
+        .on('ready', function(data) {
+            
+            // send data as geojson format
+            makeHeatMap(data.target.toGeoJSON())
+        })
+        .on('error', function(e) {
+            console.log('error ', e)
+        }); 
     
+    // global var for heat map layer
+    var heatLayer;
+
+        
+    function makeHeatMap(data) {
+        
+        // empty array to collect point locations
+        var heatPoints = [];
+        
+        // loop through data and push lat/lon coords to array
+        data.features.forEach(function(feature) {
+            heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+        });
+        
+        // create the heat layer with array
+        heatLayer = L.heatLayer(heatPoints, {maxZoom: 18}).addTo(map);
+        
+        // function call to add layer switcher controls
+        addControls();
+        
+        // add crimeLayer here so on top of heat layer for hover functionality to work
+        crimeLayer.addTo(map);
+        
+    }
+        
+    function addControls() {
+        
+        var layers = {
+            "heat": heatLayer,
+            "crime locations": crimeLayer
+     
+        }
+
+        L.control.layers(null, layers, { collapsed:false }).addTo(map);
+    }
     </script>
     
 </body>
