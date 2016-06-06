@@ -78,7 +78,7 @@
             left: 36%;
             width: 200px;
             padding: 8px 15px 4px;
-            background: #1C9976;
+            background: #005DAA;
             border-radius: 3px;
             color: white;
         }
@@ -88,7 +88,7 @@
         #info {
             padding: 8px 15px;
             background: white;
-            border: 2px solid #1C9976;
+            border: 2px solid #005DAA;
             border-radius: 3px; 
             color: #005DAA;
             position: absolute;
@@ -107,12 +107,24 @@
 </head>
 
 <body>
-    <header>
-        <h1>Map Title</h1>
-        <h2>Map Subtitle</h2>
-    </header>
-
     <div id='map'></div>
+    
+    <div id="info">
+    <p>Case Number: <span></span></p>
+    <p class="date">Report Date: <span></span></p>
+    <p class="category">Offense Category: <span></span></p>
+    <p class="description">Details: <span></span></p>
+    </div>
+    
+    <div id='side-panel'>
+        <h1>Crime and Blue Phones</h1>
+        <h2>The effect of campus emergency phones on incidents of crime.</h2>
+    </div>
+
+    <div id="ui-slider">
+     <input type="range" min="1", max="8", value="1", step="1" class="slider">
+    </div>
+    
 
     <footer>
 
@@ -126,7 +138,7 @@
         center: [38.028319, -84.505000],
         zoom: 14,
         minZoom: 12,
-        maxZoom: 16,
+        maxZoom: 18,
         maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
     });
         
@@ -143,12 +155,10 @@
         },
         onEachFeature: function(feature, layer) {
             
-            // hover/info retrieve code here
             layer.on('mouseover', function(e) {
                 console.log(e.target.feature.properties)
             })
         }
-            
     });
 
     var crimeLayer = omnivore.csv('crimes2.csv', null, customLayer)
@@ -184,6 +194,7 @@
         // add crimeLayer here so on top of heat layer for hover functionality to work
         crimeLayer.addTo(map);
         
+        infoWindow();
     }
         
     function addControls() {
@@ -196,7 +207,51 @@
 
         L.control.layers(null, layers, { collapsed:false }).addTo(map);
     }
-    </script>
+        
+//    function filterControls() {
+//
+//    var layers = {
+//        "Personal Crime": heatLayer,
+//        "Property Crime": crimeLayer
+//
+//    }
+//
+//    L.control.layers(null, layers, { collapsed:false }).addTo(map);
+//    }
+        
+     function infoWindow() {
+        var info = $('#info');
+        info.hide();
+         
+        customLayer.on('mouseover', function(e) {
+
+        var props = e.layer.feature.properties;
+           info.show();
+            $('#info span').text(props["Case Number"]);
+            $(".date span:first-child").text(props["Report Date"]);
+            $(".category span:first-child").text(props["Category"]);
+            $(".description span:first-child").text(props["Incident Description"]);
+
+        e.layer.setStyle({ fillOpacity: .6 });
+        });
+        customLayer.on('mouseout', function(e) {
+            info.hide();
+            e.layer.setStyle({ fillOpacity: 0 });
+        });
+
+    $(document).mousemove(function(e){
+        info.css({"left": e.pageX + 6, "top": e.pageY - info.height() - 15}); 
+        if(info.offset().top < 4) {
+            info.css({"top": e.pageY + 15});
+        }
+        if(info.offset().left + info.width() >= $(document).width() - 40) {
+            info.css({"left": e.pageX - info.width() - 30});
+        }
+    });
+    }
+        
+    omnivore.csv('tap_phones.csv').addTo(map);
+</script>
     
 </body>
 
