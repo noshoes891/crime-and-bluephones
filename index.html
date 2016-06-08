@@ -376,18 +376,18 @@
          
         customLayer.on('mouseover', function(e) {
 
-        var props = e.layer.feature.properties;
-           info.show();
+            var props = e.layer.feature.properties;
+            info.show();
             $('#info span').text(props["Case Number"]);
             $(".date span:first-child").text(props["Report Date"]);
             $(".category span:first-child").text(props["Category"]);
             $(".description span:first-child").text(props["Incident Description"]);
 
-        e.layer.setStyle({ fillOpacity: .6 });
+            //e.layer.setStyle({ fillOpacity: .6 });
         });
         customLayer.on('mouseout', function(e) {
             info.hide();
-            e.layer.setStyle({ fillOpacity: 0 });
+            //e.layer.setStyle({ fillOpacity: 0 });
         });
 
     $(document).mousemove(function(e){
