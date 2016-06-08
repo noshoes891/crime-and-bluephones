@@ -85,6 +85,18 @@
         .slider {
             width: 100%;
         }
+        #filter-ui {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+
+        }
+        #filter-ui button {
+            font-size: 1.3em;
+        }
+        #filter-ui button.selected {
+            color: red;
+        }
         #info {
             padding: 8px 15px;
             background: white;
@@ -124,7 +136,12 @@
     <div id="ui-slider">
      <input type="range" min="1", max="16", value="1", step="1" class="slider">
     </div>
-    
+    <div id="filter-ui">
+        <button value="personalCrime">Personal</button>
+        <button value="propCrime">Property</button>
+        <button value="otherCrime">Other</button>
+        
+    </div>
 
     <footer>
 
@@ -141,6 +158,26 @@
         maxZoom: 18,
         maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
     });
+        
+    // global var for heat map layer
+    var heatLayer,
+        currentDate = '1';
+
+    var sliderDateKey = {
+
+        1 : new Date(2013, 03),
+        2 : new Date(2013, 06),
+        3 : new Date(2013, 09)
+
+
+    };
+        
+//    var personalCrimes = [],
+//        propCrimes = [],
+//        otherCrimes = [];
+        
+    var selectedCrime = 'all';
+
         
     var customLayer = L.geoJson(null, {
         
@@ -169,6 +206,7 @@
              // loop through data and push lat/lon coords to array
             data.features.forEach(function(feature) {
             
+                // update date
                 var crimeDate = feature.properties.Crime_Date;
 
                 var month = crimeDate.slice(0,2)
@@ -177,6 +215,28 @@
                 var newCrimeDate = new Date(year, month);
 
                 feature.properties.Crime_Date = newCrimeDate;
+                
+                // gather crime types
+                var crimeCat = feature.properties.Category;
+               
+                if(crimeCat === 'Theft') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Assault') {
+                    feature.properties.Type = 'personalCrime'
+                } else if(crimeCat === 'Terroristic Threatening') {
+                    feature.properties.Type = 'personalCrime'
+                } else if(crimeCat === 'Harassment') {
+                    feature.properties.Type = 'personalCrime'
+                } else if(crimeCat === 'Criminal Trespass') {
+                    feature.properties.Type = 'otherCrime'
+                } else if(crimeCat === 'Drug Violations') {
+                    feature.properties.Type = 'otherCrime'
+                } else if(crimeCat === 'Robbery') {
+                    feature.properties.Type = 'personalCrime'
+                } 
+                
+                
+                
             });
             
             // send data as geojson format
@@ -184,20 +244,9 @@
         })
         .on('error', function(e) {
             console.log('error ', e)
-        }); 
+        }).addTo(map);; 
     
-    // global var for heat map layer
-    var heatLayer,
-        currentDate = 1;
-        
-    var sliderDateKey = {
-        
-        1 : new Date(2013, 03),
-        2 : new Date(2013, 06),
-        3 : new Date(2013, 09)
-        
-        
-    }
+    
 
     
     
@@ -205,7 +254,11 @@
         
          heatLayer = L.heatLayer([0,0], {maxZoom: 18}).addTo(map);
          updateHeatMap(data);
-         sliderUI(data)
+         sliderUI(data);
+         filterUI(data);
+        // function call to add layer switcher controls
+         //addControls();
+         infoWindow();
     }
         
     function updateHeatMap(data) {
@@ -216,32 +269,45 @@
         // loop through data and push lat/lon coords to array
         data.features.forEach(function(feature) {
             
-            if(currentDate === 1) {
-                if(feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
-                   heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+            if(selectedCrime != 'all') {
+            
+                if(feature.properties.Type === selectedCrime) {
+                    if(currentDate === '1') {
+                        if(feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                           heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                        }
+                    } else {
+                        if(feature.properties.Crime_Date > sliderDateKey[currentDate-1] && feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                           heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                        }
+                    }
                 }
+                
             } else {
-                if(feature.properties.Crime_Date > sliderDateKey[currentDate-1] && feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
-                   heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
-                }
+                
+               if(currentDate === '1') {
+                    if(feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                       heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                    }
+                } else {
+                    if(feature.properties.Crime_Date > sliderDateKey[currentDate-1] && feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                       heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                    }
+                } 
+                
+                
             }
             
             
         });
         
-        console.log(heatPoints.length)
+        // console.log(heatPoints.length)
         
         // create the heat layer with array
         heatLayer.setLatLngs(heatPoints);
         heatLayer.redraw();
-        
-        // function call to add layer switcher controls
-        addControls();
-        
-        // add crimeLayer here so on top of heat layer for hover functionality to work
-        crimeLayer.addTo(map);
-        
-        infoWindow();
+          
+       
     }
         
     function sliderUI(data) {
@@ -254,6 +320,25 @@
             
         })
         
+    }
+        
+    function filterUI(data) {
+
+        $('#filter-ui button').on('click', function() {
+            
+            if($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+                selectedCrime = 'all';
+                updateHeatMap(data);
+            } else {
+                $('#filter-ui button').removeClass('selected');
+                selectedCrime = $(this).val();
+                $(this).addClass('selected'); 
+                updateHeatMap(data);
+            }
+
+        })
+
     }
         
     function addControls() {
