@@ -244,7 +244,7 @@
         })
         .on('error', function(e) {
             console.log('error ', e)
-        }).addTo(map);; 
+        }); 
     
     
 
@@ -257,7 +257,7 @@
          sliderUI(data);
          filterUI(data);
         // function call to add layer switcher controls
-         //addControls();
+         addZoomLayerControl();
          infoWindow();
     }
         
@@ -341,15 +341,22 @@
 
     }
         
-    function addControls() {
+    function addZoomLayerControl() {
         
-        var layers = {
-            "heat": heatLayer,
-            "crime locations": crimeLayer
-     
-        }
+        
+        map.on('zoomend', function() {
+            var currentZoom = map.getZoom();
+            if(currentZoom > 15) {
+                map.removeLayer(heatLayer);
+                map.addLayer(crimeLayer);
+            } else {
+                map.removeLayer(crimeLayer);
+                map.addLayer(heatLayer);
+            }
+            
+        });
 
-        L.control.layers(null, layers, { collapsed:false }).addTo(map);
+        
     }
         
 //    function filterControls() {
