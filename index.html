@@ -122,7 +122,7 @@
     </div>
 
     <div id="ui-slider">
-     <input type="range" min="1", max="8", value="1", step="1" class="slider">
+     <input type="range" min="1", max="16", value="1", step="1" class="slider">
     </div>
     
 
@@ -164,29 +164,76 @@
     var crimeLayer = omnivore.csv('crimes2.csv', null, customLayer)
         .on('ready', function(data) {
             
+            data = data.target.toGeoJSON()
+            
+             // loop through data and push lat/lon coords to array
+            data.features.forEach(function(feature) {
+            
+                var crimeDate = feature.properties.Crime_Date;
+
+                var month = crimeDate.slice(0,2)
+                var year = crimeDate.slice(6,10);  
+
+                var newCrimeDate = new Date(year, month);
+
+                feature.properties.Crime_Date = newCrimeDate;
+            });
+            
             // send data as geojson format
-            makeHeatMap(data.target.toGeoJSON())
+            makeHeatMap(data)
         })
         .on('error', function(e) {
             console.log('error ', e)
         }); 
     
     // global var for heat map layer
-    var heatLayer;
-
+    var heatLayer,
+        currentDate = 1;
         
+    var sliderDateKey = {
+        
+        1 : new Date(2013, 03),
+        2 : new Date(2013, 06),
+        3 : new Date(2013, 09)
+        
+        
+    }
+
+    
+    
     function makeHeatMap(data) {
+        
+         heatLayer = L.heatLayer([0,0], {maxZoom: 18}).addTo(map);
+         updateHeatMap(data);
+         sliderUI(data)
+    }
+        
+    function updateHeatMap(data) {
         
         // empty array to collect point locations
         var heatPoints = [];
         
         // loop through data and push lat/lon coords to array
         data.features.forEach(function(feature) {
-            heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+            
+            if(currentDate === 1) {
+                if(feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                   heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                }
+            } else {
+                if(feature.properties.Crime_Date > sliderDateKey[currentDate-1] && feature.properties.Crime_Date <= sliderDateKey[currentDate]) {
+                   heatPoints.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]);
+                }
+            }
+            
+            
         });
         
+        console.log(heatPoints.length)
+        
         // create the heat layer with array
-        heatLayer = L.heatLayer(heatPoints, {maxZoom: 18}).addTo(map);
+        heatLayer.setLatLngs(heatPoints);
+        heatLayer.redraw();
         
         // function call to add layer switcher controls
         addControls();
@@ -195,6 +242,18 @@
         crimeLayer.addTo(map);
         
         infoWindow();
+    }
+        
+    function sliderUI(data) {
+        
+        var slider = $('.slider');
+        
+        slider.on('input change', function() {
+            currentDate = $(this).val();
+            updateHeatMap(data);
+            
+        })
+        
     }
         
     function addControls() {
@@ -250,7 +309,7 @@
     });
     }
         
-    omnivore.csv('tap_phones.csv').addTo(map);
+    // omnivore.csv('tap_phones.csv').addTo(map);
 </script>
     
 </body>
