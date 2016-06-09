@@ -87,15 +87,35 @@
         }
         #filter-ui {
             position: absolute;
-            top: 20px;
+            top: 55px;
             right: 15px;
-
+            line-height: 30px;
+            vertical-align: middle;
         }
         #filter-ui button {
             font-size: 1.3em;
+            color: white;
+            background: #005DAA;
         }
         #filter-ui button.selected {
-            color: red;
+            color: #005DAA;
+            background: white;
+        }
+        #health-ui {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            line-height: 30px;
+            vertical-align: middle;
+        }
+        #health-ui button {
+            font-size: 1.3em;
+            color: white;
+            background: #005DAA;
+        }
+        #health-ui button.selected {
+            color: #005DAA;
+            background: white;
         }
         #info {
             padding: 8px 15px;
@@ -134,12 +154,17 @@
     </div>
 
     <div id="ui-slider">
-     <input type="range" min="1", max="16", value="1", step="1" class="slider">
+     <input type="range" min="1", max="14", value="1", step="1" class="slider">
     </div>
     <div id="filter-ui">
         <button value="personalCrime">Personal</button>
         <button value="propCrime">Property</button>
         <button value="otherCrime">Other</button>
+        
+    </div>
+        <div id="health-ui">
+        <button value="include">Include Hospitals</button>
+        <button value="remove">Remove Hospitals</button>
         
     </div>
 
@@ -167,16 +192,22 @@
 
         1 : new Date(2013, 03),
         2 : new Date(2013, 06),
-        3 : new Date(2013, 09)
-
-
+        3 : new Date(2013, 09),
+        4 : new Date(2013, 12),
+        5 : new Date(2014, 03),
+        6 : new Date(2014, 06),
+        7 : new Date(2014, 09),
+        8 : new Date(2014, 12),
+        9 : new Date(2015, 03),
+        10 : new Date(2015, 06),
+        11 : new Date(2015, 09),
+        12 : new Date(2015, 12),
+        13 : new Date(2016, 03),
+        14 : new Date(2016, 06)
     };
-        
-//    var personalCrimes = [],
-//        propCrimes = [],
-//        otherCrimes = [];
-        
+
     var selectedCrime = 'all';
+    var healthCrime = 'include';
 
         
     var customLayer = L.geoJson(null, {
@@ -193,7 +224,7 @@
         onEachFeature: function(feature, layer) {
             
             layer.on('mouseover', function(e) {
-                console.log(e.target.feature.properties)
+//                console.log(e.target.feature.properties)
             })
         }
     });
@@ -221,20 +252,51 @@
                
                 if(crimeCat === 'Theft') {
                     feature.properties.Type = 'propCrime'
-                } else if(crimeCat === 'Assault') {
+                } else if(crimeCat === 'Criminal Mischief') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Arson') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Burglary') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Motor Vehicle Theft') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Criminal Mischief') {
+                    feature.properties.Type = 'propCrime'
+                } else if(crimeCat === 'Receiving Stolen Property') {
+                    feature.properties.Type = 'propCrime'
+                }
+                
+                else if(crimeCat === 'Assault') {
                     feature.properties.Type = 'personalCrime'
                 } else if(crimeCat === 'Terroristic Threatening') {
                     feature.properties.Type = 'personalCrime'
                 } else if(crimeCat === 'Harassment') {
                     feature.properties.Type = 'personalCrime'
-                } else if(crimeCat === 'Criminal Trespass') {
+                } else if(crimeCat === 'Robbery') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Death Investigation') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Manslaughter') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Murder') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Sex Offenses') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Other Sex Offenses') {
+                    feature.properties.Type = 'personalCrime' 
+                } else if(crimeCat === 'Harassing Communications') {
+                    feature.properties.Type = 'personalCrime' 
+                }
+                
+                else if(crimeCat === 'Criminal Trespass') {
+                    feature.properties.Type = 'otherCrime'
+                } else if(crimeCat === 'All Other Offenses') {
                     feature.properties.Type = 'otherCrime'
                 } else if(crimeCat === 'Drug Violations') {
                     feature.properties.Type = 'otherCrime'
-                } else if(crimeCat === 'Robbery') {
-                    feature.properties.Type = 'personalCrime'
-                } 
-                
+                } else if(crimeCat === 'Weapons Possession') {
+                    feature.properties.Type = 'otherCrime'
+                }            
                 
                 
             });
@@ -255,8 +317,8 @@
          heatLayer = L.heatLayer([0,0], {maxZoom: 18}).addTo(map);
          updateHeatMap(data);
          sliderUI(data);
+         healthUI(data);
          filterUI(data);
-        // function call to add layer switcher controls
          addZoomLayerControl();
          infoWindow();
     }
@@ -341,6 +403,23 @@
 
     }
         
+    function healthUI(data) {
+        $('#health-ui button').on('click', function() {
+            
+            if($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+                healthCrime = 'include';
+                updateHeatMap(data);
+            } else {
+                $('#health-ui button').removeClass('selected');
+                healthCrime = $(this).val();
+                $(this).addClass('selected'); 
+                updateHeatMap(data);
+            }
+
+        })
+    }
+        
     function addZoomLayerControl() {
         
         
@@ -382,12 +461,9 @@
             $(".date span:first-child").text(props["Report Date"]);
             $(".category span:first-child").text(props["Category"]);
             $(".description span:first-child").text(props["Incident Description"]);
-
-            //e.layer.setStyle({ fillOpacity: .6 });
         });
         customLayer.on('mouseout', function(e) {
             info.hide();
-            //e.layer.setStyle({ fillOpacity: 0 });
         });
 
     $(document).mousemove(function(e){
@@ -401,7 +477,7 @@
     });
     }
         
-    // omnivore.csv('tap_phones.csv').addTo(map);
+//     omnivore.csv('tap_phones.csv').addTo(map);
 </script>
     
 </body>
