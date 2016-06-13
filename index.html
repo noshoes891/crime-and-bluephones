@@ -134,6 +134,20 @@
             font-size: 1.3em;
             font-weight: 500;
         }
+        #date {
+            position: absolute;
+            left: 36%;
+            bottom: 65px;
+            padding: 6px 15px 8px;
+            background: #005DAA;
+            border: 2px solid #d3d3d3;
+            color: white;
+        }
+        #quartile {
+            font-size: 1.3em;
+            color: white;
+            background: #005DAA:
+        }
         
     </style>
 </head>
@@ -151,22 +165,33 @@
     <div id='side-panel'>
         <h1>Crime and Blue Phones</h1>
         <h2>The effect of campus emergency phones on incidents of crime.</h2>
+        <p>This map provides crime data for the University of Kentucky from January of 2013 through June of 2016. The crime is broken into quartiles.</p>
+        <p>You may select from personal crime, property crime, other crime or leave as the default of all crimes to display the heat map of your choice.</p>
+        <p>As the map is zoomed, the heat map will be removed and replaced by point data of each crime. Hover functionality is available to provide specific incident information.</p>
+        <p>The Unieversity of Kentucky began updating outdated emergency phones in June of 2013. These updated phone provide wide area notification and CCTV along with the clasic emergency phone capabilities.</p>
+        <p>All crime data was gathered from the Unviversity of Kentucky Crime Log at www.uky.edu/crimelog.</p>
+        <P>Map created by: Jonathon Barefoot.</P>
     </div>
 
     <div id="ui-slider">
      <input type="range" min="1", max="14", value="1", step="1" class="slider">
     </div>
+    
+    <div id="date">Quartile: <span>1</span></div>
+    
     <div id="filter-ui">
         <button value="personalCrime">Personal</button>
         <button value="propCrime">Property</button>
         <button value="otherCrime">Other</button>
         
+<!--
     </div>
         <div id="health-ui">
         <button value="include">Include Hospitals</button>
         <button value="remove">Remove Hospitals</button>
         
     </div>
+-->
 
     <footer>
 
@@ -184,7 +209,6 @@
         maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
     });
         
-    // global var for heat map layer
     var heatLayer,
         currentDate = '1';
 
@@ -224,7 +248,6 @@
         onEachFeature: function(feature, layer) {
             
             layer.on('mouseover', function(e) {
-//                console.log(e.target.feature.properties)
             })
         }
     });
@@ -234,10 +257,8 @@
             
             data = data.target.toGeoJSON()
             
-             // loop through data and push lat/lon coords to array
             data.features.forEach(function(feature) {
             
-                // update date
                 var crimeDate = feature.properties.Crime_Date;
 
                 var month = crimeDate.slice(0,2)
@@ -247,7 +268,6 @@
 
                 feature.properties.Crime_Date = newCrimeDate;
                 
-                // gather crime types
                 var crimeCat = feature.properties.Category;
                
                 if(crimeCat === 'Theft') {
@@ -301,7 +321,6 @@
                 
             });
             
-            // send data as geojson format
             makeHeatMap(data)
         })
         .on('error', function(e) {
@@ -325,10 +344,8 @@
         
     function updateHeatMap(data) {
         
-        // empty array to collect point locations
         var heatPoints = [];
         
-        // loop through data and push lat/lon coords to array
         data.features.forEach(function(feature) {
             
             if(selectedCrime != 'all') {
@@ -365,7 +382,6 @@
         
         // console.log(heatPoints.length)
         
-        // create the heat layer with array
         heatLayer.setLatLngs(heatPoints);
         heatLayer.redraw();
           
@@ -373,14 +389,14 @@
     }
         
     function sliderUI(data) {
-        
+        var output = $('#quartile')
         var slider = $('.slider');
         
         slider.on('input change', function() {
             currentDate = $(this).val();
             updateHeatMap(data);
-            
-        })
+            output.html(currentDate);
+        });
         
     }
         
@@ -438,17 +454,6 @@
         
     }
         
-//    function filterControls() {
-//
-//    var layers = {
-//        "Personal Crime": heatLayer,
-//        "Property Crime": crimeLayer
-//
-//    }
-//
-//    L.control.layers(null, layers, { collapsed:false }).addTo(map);
-//    }
-        
      function infoWindow() {
         var info = $('#info');
         info.hide();
@@ -477,7 +482,7 @@
     });
     }
         
-//     omnivore.csv('tap_phones.csv').addTo(map);
+     omnivore.csv('tap_phones.csv').addTo(map);
 </script>
     
 </body>
