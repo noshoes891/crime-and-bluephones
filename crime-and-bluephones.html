@@ -481,8 +481,17 @@
         }
     });
     }
+    
+    var icon= L.icon({
+        iconUrl:'TAP.png'
+    });
         
-     omnivore.csv('tap_phones.csv').addTo(map);
+     omnivore.csv('tap_phones.csv')
+        .on('ready',function(layer) {
+         this.eachLayer(function(marker){
+             marker.setIcon(icon)
+         })
+     }).addTo(map);
 </script>
     
 </body>
