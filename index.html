@@ -87,7 +87,7 @@
         }
         #filter-ui {
             position: absolute;
-            top: 55px;
+            top: 20px;
             right: 15px;
             line-height: 30px;
             vertical-align: middle;
@@ -101,7 +101,8 @@
             color: #005DAA;
             background: white;
         }
-        #health-ui {
+/*        #health-ui {*/
+/*
             position: absolute;
             top: 20px;
             right: 15px;
@@ -117,6 +118,7 @@
             color: #005DAA;
             background: white;
         }
+*/
         #info {
             padding: 8px 15px;
             background: white;
@@ -167,17 +169,19 @@
         <h2>The effect of campus emergency phones on incidents of crime.</h2>
         <p>This map provides crime data for the University of Kentucky from January of 2013 through June of 2016. The crime is broken into quartiles.</p>
         <p>You may select from personal crime, property crime, other crime or leave as the default of all crimes to display the heat map of your choice.</p>
-        <p>As the map is zoomed, the heat map will be removed and replaced by point data of each crime. Hover functionality is available to provide specific incident information.</p>
+<!--        <p>As the map is zoomed, the heat map will be removed and replaced by point data of each crime. Hover functionality is available to provide specific incident information.</p>-->
         <p>The Unieversity of Kentucky began updating outdated emergency phones in June of 2013. These updated phone provide wide area notification and CCTV along with the clasic emergency phone capabilities.</p>
         <p>All crime data was gathered from the Unviversity of Kentucky Crime Log at www.uky.edu/crimelog.</p>
         <P>Map created by: Jonathon Barefoot.</P>
     </div>
 
     <div id="ui-slider">
-     <input type="range" min="1", max="14", value="1", step="1" class="slider">
+     <label><input type="range" min="1", max="14", value="1", step="1" class="slider"></label>
     </div>
     
-    <div id="date">Quartile: <span>1</span></div>
+    <div id="date">
+        <label>Quartile: <span>1</span></label>
+    </div>
     
     <div id="filter-ui">
         <button value="personalCrime">Personal</button>
@@ -205,7 +209,7 @@
         center: [38.028319, -84.505000],
         zoom: 14,
         minZoom: 12,
-        maxZoom: 18,
+        maxZoom: 16,
         maxBounds: L.latLngBounds([38.088590, -84.583319],[37.991558, -84.439602])
     });
         
@@ -336,10 +340,10 @@
          heatLayer = L.heatLayer([0,0], {maxZoom: 18}).addTo(map);
          updateHeatMap(data);
          sliderUI(data);
-         healthUI(data);
+//         healthUI(data);
          filterUI(data);
-         addZoomLayerControl();
-         infoWindow();
+//         addZoomLayerControl();
+//         infoWindow();
     }
         
     function updateHeatMap(data) {
@@ -418,69 +422,69 @@
         })
 
     }
+//        
+//    function healthUI(data) {
+//        $('#health-ui button').on('click', function() {
+//            
+//            if($(this).hasClass('selected')) {
+//                $(this).removeClass('selected');
+//                healthCrime = 'include';
+//                updateHeatMap(data);
+//            } else {
+//                $('#health-ui button').removeClass('selected');
+//                healthCrime = $(this).val();
+//                $(this).addClass('selected'); 
+//                updateHeatMap(data);
+//            }
+//
+//        })
+//    }
+//        
+//    function addZoomLayerControl() {
+//        
+//        
+//        map.on('zoomend', function() {
+//            var currentZoom = map.getZoom();
+//            if(currentZoom > 15) {
+//                map.removeLayer(heatLayer);
+//                map.addLayer(crimeLayer);
+//            } else {
+//                map.removeLayer(crimeLayer);
+//                map.addLayer(heatLayer);
+//            }
+//            
+//        });
+//
+//        
+//    }
         
-    function healthUI(data) {
-        $('#health-ui button').on('click', function() {
-            
-            if($(this).hasClass('selected')) {
-                $(this).removeClass('selected');
-                healthCrime = 'include';
-                updateHeatMap(data);
-            } else {
-                $('#health-ui button').removeClass('selected');
-                healthCrime = $(this).val();
-                $(this).addClass('selected'); 
-                updateHeatMap(data);
-            }
-
-        })
-    }
-        
-    function addZoomLayerControl() {
-        
-        
-        map.on('zoomend', function() {
-            var currentZoom = map.getZoom();
-            if(currentZoom > 15) {
-                map.removeLayer(heatLayer);
-                map.addLayer(crimeLayer);
-            } else {
-                map.removeLayer(crimeLayer);
-                map.addLayer(heatLayer);
-            }
-            
-        });
-
-        
-    }
-        
-     function infoWindow() {
-        var info = $('#info');
-        info.hide();
-         
-        customLayer.on('mouseover', function(e) {
-
-            var props = e.layer.feature.properties;
-            info.show();
-            $('#info span').text(props["Case Number"]);
-            $(".date span:first-child").text(props["Report Date"]);
-            $(".category span:first-child").text(props["Category"]);
-            $(".description span:first-child").text(props["Incident Description"]);
-        });
-        customLayer.on('mouseout', function(e) {
-            info.hide();
-        });
-
-    $(document).mousemove(function(e){
-        info.css({"left": e.pageX + 6, "top": e.pageY - info.height() - 15}); 
-        if(info.offset().top < 4) {
-            info.css({"top": e.pageY + 15});
-        }
-        if(info.offset().left + info.width() >= $(document).width() - 40) {
-            info.css({"left": e.pageX - info.width() - 30});
-        }
-    });
-    }
+//     function infoWindow() {
+//        var info = $('#info');
+//        info.hide();
+//         
+//        customLayer.on('mouseover', function(e) {
+//
+//            var props = e.layer.feature.properties;
+//            info.show();
+//            $('#info span').text(props["Case Number"]);
+//            $(".date span:first-child").text(props["Report Date"]);
+//            $(".category span:first-child").text(props["Category"]);
+//            $(".description span:first-child").text(props["Incident Description"]);
+//        });
+//        customLayer.on('mouseout', function(e) {
+//            info.hide();
+//        });
+//
+//    $(document).mousemove(function(e){
+//        info.css({"left": e.pageX + 6, "top": e.pageY - info.height() - 15}); 
+//        if(info.offset().top < 4) {
+//            info.css({"top": e.pageY + 15});
+//        }
+//        if(info.offset().left + info.width() >= $(document).width() - 40) {
+//            info.css({"left": e.pageX - info.width() - 30});
+//        }
+//    });
+//    }
     
     var icon= L.icon({
         iconUrl:'TAP.png'
