@@ -145,8 +145,9 @@
             border: 2px solid #d3d3d3;
             color: white;
         }
-        #quartile {
+        #date {
             font-size: 1.3em;
+            position: absolute;
             color: white;
             background: #005DAA:
         }
@@ -393,7 +394,7 @@
     }
         
     function sliderUI(data) {
-        var output = $('#quartile')
+        var output = $('#date span')
         var slider = $('.slider');
         
         slider.on('input change', function() {
