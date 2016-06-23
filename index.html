@@ -394,13 +394,17 @@
     }
         
     function sliderUI(data) {
+<<<<<<< HEAD
         var output = $('#date span')
+=======
+        var output = $('#date label')
+>>>>>>> origin/master
         var slider = $('.slider');
         
         slider.on('input change', function() {
             currentDate = $(this).val();
             updateHeatMap(data);
-            output.html(currentDate);
+            output.html("Quartile "+ currentDate);
         });
         
     }
